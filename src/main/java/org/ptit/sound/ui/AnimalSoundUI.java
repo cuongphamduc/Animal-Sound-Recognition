@@ -208,7 +208,7 @@ public class AnimalSoundUI extends JFrame {
                             String recAnimal = opr.hmmGetAnimalFromAmplitureArray(soundCapture.getAudioData());
                             String selectAnimal = getAnimalsComboBoxVerify().getSelectedItem().toString();
 
-                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".png").
+                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".jpg").
                                     getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
 
                             if (recAnimal.equalsIgnoreCase(selectAnimal)) {
@@ -267,7 +267,7 @@ public class AnimalSoundUI extends JFrame {
                             String recAnimal = classifier.predict_audio(f);
                             String selectAnimal = getAnimalsComboBoxVerify().getSelectedItem().toString();
 
-                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".png").
+                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".jpg").
                                     getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
 
                             if (recAnimal.equalsIgnoreCase(selectAnimal)) {
@@ -325,7 +325,7 @@ public class AnimalSoundUI extends JFrame {
                         try {
                             String label = opr.hmmGetAnimalFromAmplitureArray(soundCapture.getAudioData());
                             getStatusLblRecognize().setText("Animal in record : " + label);
-                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".png").
+                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
                                     getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -376,7 +376,7 @@ public class AnimalSoundUI extends JFrame {
 
                             String label = classifier.predict_audio(f);
                             getStatusLblRecognizee().setText("Animal in record : " + label);
-                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".png").
+                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
                                     getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -459,7 +459,7 @@ public class AnimalSoundUI extends JFrame {
                         try {
                             String label = opr.hmmGetAnimalFromFile(f);
                             getStatusLblRecognize().setText("Animal in file : " + label);
-                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".png").
+                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
                                     getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
                         } catch (Exception e2) {
                             e2.printStackTrace();
@@ -485,7 +485,7 @@ public class AnimalSoundUI extends JFrame {
                         try {
                             String label = classifier.predict_audio(f);
                             getStatusLblRecognizee().setText("Animal in file : " + label);
-                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".png").
+                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
                                     getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
                         } catch (Exception e2) {
                             e2.printStackTrace();
@@ -533,7 +533,7 @@ public class AnimalSoundUI extends JFrame {
             statusLBLRecognize = new JLabel("");
             statusLBLRecognize.setHorizontalAlignment(SwingConstants.CENTER);
             statusLBLRecognize.setFont(new Font("Tahoma", Font.BOLD, 20));
-            statusLBLRecognize.setBounds(450, 175, 400, 40);
+            statusLBLRecognize.setBounds(450, 200, 400, 40);
         }
         return statusLBLRecognize;
     }
@@ -543,7 +543,7 @@ public class AnimalSoundUI extends JFrame {
             statusLBLRecognizee = new JLabel("");
             statusLBLRecognizee.setHorizontalAlignment(SwingConstants.CENTER);
             statusLBLRecognizee.setFont(new Font("Tahoma", Font.BOLD, 20));
-            statusLBLRecognizee.setBounds(450, 425, 400, 40);
+            statusLBLRecognizee.setBounds(450, 450, 400, 40);
         }
         return statusLBLRecognizee;
     }
@@ -800,7 +800,7 @@ public class AnimalSoundUI extends JFrame {
     private JLabel getImageAnimal() {
         if (imageAnimal == null) {
             imageAnimal = new JLabel(new ImageIcon());
-            imageAnimal.setBounds(450, -15, 400, 200);
+            imageAnimal.setBounds(450, 0, 400, 200);
         }
         return imageAnimal;
     }
@@ -808,7 +808,7 @@ public class AnimalSoundUI extends JFrame {
     private JLabel getImageAnimall() {
         if (imageAnimall == null) {
             imageAnimall = new JLabel(new ImageIcon());
-            imageAnimall.setBounds(450, 235, 400, 200);
+            imageAnimall.setBounds(450, 250, 400, 200);
         }
         return imageAnimall;
     }
