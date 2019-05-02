@@ -107,7 +107,7 @@ public class WaveData {
 
     public void saveToFile(String name, AudioFileFormat.Type fileType, AudioInputStream audioInputStream) throws Exception {
 
-        System.out.println("WaveData.saveToFile() " + name);
+        System.out.println("Save to file : " + name);
 
         File myFile = new File(name);
         if (!myFile.exists())
@@ -124,7 +124,7 @@ public class WaveData {
         int i = 0;
 
         while (myFile.exists()) {
-            String temp = String.format(name + "%d", i++);
+            String temp = String.format(name + "_%d", i++);
             myFile = new File(temp + ".wav");
         }
 

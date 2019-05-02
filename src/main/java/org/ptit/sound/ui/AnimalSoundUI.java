@@ -21,7 +21,9 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.*;
 import java.util.List;
+import java.util.Objects;
 
 
 public class AnimalSoundUI extends JFrame {
@@ -62,6 +64,8 @@ public class AnimalSoundUI extends JFrame {
     private JLabel evalResultt;
     private JLabel imageAnimal;
     private JLabel imageAnimall;
+    private JButton addRecord;
+    private JButton addFile;
 
     public AnimalSoundUI() {
         super();
@@ -293,6 +297,8 @@ public class AnimalSoundUI extends JFrame {
             trainPanel.add(getAnimalsComboBoxAddAnimal(), null);
             trainPanel.add(getAddAnimalToCombo(), null);
             trainPanel.add(getAddAnimalToComboBtn(), null);
+            trainPanel.add(getAddFile(), null);
+            trainPanel.add(getAddRecord(), null);
             trainPanel.add(getLblChooseAnAnimal());
             trainPanel.add(getLblAddANew());
         }
@@ -361,7 +367,7 @@ public class AnimalSoundUI extends JFrame {
 
                             f = new File(name + ".wav");
 
-                            while (f.exists()) {
+                            while (!!f.exists()) {
                                 String temp = String.format(name + "%d", i++);
                                 f = new File(temp + ".wav");
                             }
@@ -813,5 +819,115 @@ public class AnimalSoundUI extends JFrame {
         return imageAnimall;
     }
 
+    private JButton getAddRecord() {
+        if (addRecord == null) {
+            addRecord = new JButton("Add just recorded to correct folder");
+            addRecord.addActionListener(new ActionListener() {
 
+                public void actionPerformed(ActionEvent arg0) {
+                    if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
+
+                        try {
+                            soundCapture.setSaveFileName("F:\\tmp\\tmp");
+                            soundCapture.getFileNameAndSaveFile();
+                            String name = soundCapture.getSaveFileName();
+
+                            File f = new File(name);
+                            int i = 0;
+                            if (!f.exists())
+                                f.mkdirs();
+
+                            f.delete();
+
+                            f = new File(name + ".wav");
+
+                            while (f.exists()) {
+                                String temp = String.format(name + "%d", i++);
+                                f = new File(temp + ".wav");
+                            }
+
+                            if (i > 1) {
+                                String temp = String.format(name + "%d", i - 2);
+                                f = new File(temp + ".wav");
+                            } else {
+                                String temp = String.format(name);
+                                f = new File(temp + ".wav");
+                            }
+
+                            File ff = new File("F:\\tmpp\\tmpp.wav");
+
+                            if (!ff.exists()) {
+                                ff.mkdirs();
+                            }
+
+                            Path FROM = Paths.get(f.getPath());
+                            Path TO = Paths.get(ff.getPath());
+                            CopyOption[] options = new CopyOption[]{
+                                    StandardCopyOption.REPLACE_EXISTING,
+                                    StandardCopyOption.COPY_ATTRIBUTES
+                            };
+                            Files.copy(FROM, TO, options);
+
+                            String label = classifier.predict_audio(ff);
+                            int count = Objects.requireNonNull(new File("data" + File.separator + label).list()).length;
+
+                            FROM = Paths.get(f.getPath());
+                            TO = Paths.get(String.format("data" + File.separator + label + File.separator + label + "_%d.wav", count));
+                            Files.copy(FROM, TO, options);
+                            JOptionPane.showMessageDialog(null, String.format("Success add just recorded to : %s", TO));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+            });
+            addRecord.setBounds(new Rectangle(11, 143, 202, 24));
+        }
+        return addRecord;
+    }
+
+    private JButton getAddFile() {
+        if (addFile == null) {
+            addFile = new JButton("Add saved WAV to correct folder");
+            addFile.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    File f = getTestFile();
+                    File ff = new File("F:\\tmpp\\tmpp.wav");
+
+                    if (ff.exists() == false) {
+                        ff.mkdirs();
+                    }
+
+                    Path FROM = Paths.get(f.getPath());
+                    Path TO = Paths.get(ff.getPath());
+                    CopyOption[] options = new CopyOption[]{
+                            StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.COPY_ATTRIBUTES
+                    };
+                    try {
+                        Files.copy(FROM, TO, options);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+
+                    String label = classifier.predict_audio(ff);
+                    int count = Objects.requireNonNull(new File("data" + File.separator + label).list()).length;
+
+                    TO = Paths.get(String.format("data" + File.separator + label + File.separator + label + "_%d.wav", count));
+                    FROM = Paths.get(f.getPath());
+
+                    try {
+                        Files.copy(FROM, TO, options);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                    JOptionPane.showMessageDialog(null, String.format("Success add saved WAV to : %s", TO));
+                }
+            });
+            addFile.setBounds(new Rectangle(11, 183, 202, 24));
+        }
+        return addFile;
+    }
 }

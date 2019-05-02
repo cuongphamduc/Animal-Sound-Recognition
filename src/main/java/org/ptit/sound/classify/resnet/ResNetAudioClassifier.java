@@ -53,7 +53,6 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
         try (Session sess = new Session(graph);
              Tensor<Float> result =
                      sess.runner().feed("input_1:0", imageTensor)
-                             //.feed("dropout_1/keras_learning_phase:0", Tensor.create(false))
                              .fetch("output_node0:0").run().get(0).expect(Float.class)) {
             final long[] rshape = result.shape();
             if (result.numDimensions() != 2 || rshape[0] != 1) {
