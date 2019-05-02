@@ -14,8 +14,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
@@ -80,21 +78,19 @@ public class AnimalSoundUI extends JFrame {
             System.out.println(e.toString());
         }
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                InputStream inputStream = ResourceUtils.getInputStream("pre_train/resnet-v2.pb");
-                classifier = new ResNetAudioClassifier();
-                try {
-                    classifier.load_model(inputStream);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                AnimalSoundUI test = new AnimalSoundUI();
-
-                test.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                test.setResizable(false);
-                test.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            InputStream inputStream = ResourceUtils.getInputStream("pre_train/resnet-v2.pb");
+            classifier = new ResNetAudioClassifier();
+            try {
+                classifier.load_model(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            AnimalSoundUI test = new AnimalSoundUI();
+
+            test.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            test.setResizable(false);
+            test.setVisible(true);
         });
     }
 
@@ -202,27 +198,24 @@ public class AnimalSoundUI extends JFrame {
     private JButton getBtnVerify() {
         if (btnVerify == null) {
             btnVerify = new JButton("Verify");
-            btnVerify.addActionListener(new ActionListener() {
+            btnVerify.addActionListener(e -> {
+                if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
 
-                public void actionPerformed(ActionEvent e) {
-                    if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
+                    try {
 
-                        try {
+                        String recAnimal = opr.hmmGetAnimalFromAmplitureArray(soundCapture.getAudioData());
+                        String selectAnimal = getAnimalsComboBoxVerify().getSelectedItem().toString();
 
-                            String recAnimal = opr.hmmGetAnimalFromAmplitureArray(soundCapture.getAudioData());
-                            String selectAnimal = getAnimalsComboBoxVerify().getSelectedItem().toString();
+                        getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".jpg").
+                                getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
 
-                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".jpg").
-                                    getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
-
-                            if (recAnimal.equalsIgnoreCase(selectAnimal)) {
-                                getStatusLblRecognize().setText("Selected animal is CORRECT");
-                            } else {
-                                getStatusLblRecognize().setText("Selected animal is INCORRECT");
-                            }
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
+                        if (recAnimal.equalsIgnoreCase(selectAnimal)) {
+                            getStatusLblRecognize().setText("Selected animal is CORRECT");
+                        } else {
+                            getStatusLblRecognize().setText("Selected animal is INCORRECT");
                         }
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
                     }
                 }
             });
@@ -234,54 +227,51 @@ public class AnimalSoundUI extends JFrame {
     private JButton getBtnVerifyy() {
         if (btnVerifyy == null) {
             btnVerifyy = new JButton("Verify");
-            btnVerifyy.addActionListener(new ActionListener() {
+            btnVerifyy.addActionListener(e -> {
+                if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
 
-                public void actionPerformed(ActionEvent e) {
-                    if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
+                    try {
 
-                        try {
+                        int i = 0;
+                        soundCapture.setSaveFileName("F:\\tmp\\tmp");
+                        soundCapture.getFileNameAndSaveFile();
+                        String name = "F:\\tmp\\tmp";
+                        File f = new File(name);
+                        if (!f.exists())
+                            f.mkdirs();
 
-                            int i = 0;
-                            soundCapture.setSaveFileName("F:\\tmp\\tmp");
-                            soundCapture.getFileNameAndSaveFile();
-                            String name = "F:\\tmp\\tmp";
-                            File f = new File(name);
-                            if (!f.exists())
-                                f.mkdirs();
+                        f.delete();
 
-                            f.delete();
+                        f = new File(name + ".wav");
 
-                            f = new File(name + ".wav");
-
-                            while (f.exists()) {
-                                String temp = String.format(name + "%d", i++);
-                                f = new File(temp + ".wav");
-                                continue;
-                            }
-
-                            if (i >= 2) {
-                                String temp = String.format(name + "%d", i - 2);
-                                f = new File(temp + ".wav");
-                            }
-                            if (i == 1) {
-                                String temp = String.format(name);
-                                f = new File(temp + ".wav");
-                            }
-
-                            String recAnimal = classifier.predict_audio(f);
-                            String selectAnimal = getAnimalsComboBoxVerify().getSelectedItem().toString();
-
-                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".jpg").
-                                    getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
-
-                            if (recAnimal.equalsIgnoreCase(selectAnimal)) {
-                                getStatusLblRecognizee().setText("Selected animal is CORRECT");
-                            } else {
-                                getStatusLblRecognizee().setText("Selected animal is INCORRECT");
-                            }
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
+                        while (f.exists()) {
+                            String temp = String.format(name + "%d", i++);
+                            f = new File(temp + ".wav");
+                            continue;
                         }
+
+                        if (i >= 2) {
+                            String temp = String.format(name + "%d", i - 2);
+                            f = new File(temp + ".wav");
+                        }
+                        if (i == 1) {
+                            String temp = String.format(name);
+                            f = new File(temp + ".wav");
+                        }
+
+                        String recAnimal = classifier.predict_audio(f);
+                        String selectAnimal = getAnimalsComboBoxVerify().getSelectedItem().toString();
+
+                        getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + selectAnimal + ".jpg").
+                                getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
+
+                        if (recAnimal.equalsIgnoreCase(selectAnimal)) {
+                            getStatusLblRecognizee().setText("Selected animal is CORRECT");
+                        } else {
+                            getStatusLblRecognizee().setText("Selected animal is INCORRECT");
+                        }
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
                     }
                 }
             });
@@ -323,21 +313,18 @@ public class AnimalSoundUI extends JFrame {
     private JButton getGetAnimalButton() {
         if (getAnimalButton == null) {
             getAnimalButton = new JButton("Recognize with just recorded");
-            getAnimalButton.addActionListener(new ActionListener() {
+            getAnimalButton.addActionListener(arg0 -> {
+                if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
 
-                public void actionPerformed(ActionEvent arg0) {
-                    if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
-
-                        try {
-                            String label = opr.hmmGetAnimalFromAmplitureArray(soundCapture.getAudioData());
-                            getStatusLblRecognize().setText("Animal in record : " + label);
-                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
-                                    getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
+                    try {
+                        String label = opr.hmmGetAnimalFromAmplitureArray(soundCapture.getAudioData());
+                        getStatusLblRecognize().setText("Animal in record : " + label);
+                        getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
+                                getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
                 }
             });
             getAnimalButton.setBounds(new Rectangle(13, 8, 202, 24));
@@ -348,47 +335,44 @@ public class AnimalSoundUI extends JFrame {
     private JButton getGetAnimalButtonn() {
         if (getAnimalButtonn == null) {
             getAnimalButtonn = new JButton("Recognize with just recorded");
-            getAnimalButtonn.addActionListener(new ActionListener() {
+            getAnimalButtonn.addActionListener(arg0 -> {
+                if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
 
-                public void actionPerformed(ActionEvent arg0) {
-                    if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
+                    try {
+                        soundCapture.setSaveFileName("F:\\tmp\\tmp");
+                        soundCapture.getFileNameAndSaveFile();
+                        String name = soundCapture.getSaveFileName();
+                        File f = new File(name);
+                        if (!f.exists())
+                            f.mkdirs();
 
-                        try {
-                            soundCapture.setSaveFileName("F:\\tmp\\tmp");
-                            soundCapture.getFileNameAndSaveFile();
-                            String name = soundCapture.getSaveFileName();
-                            File f = new File(name);
-                            if (!f.exists())
-                                f.mkdirs();
+                        f.delete();
 
-                            f.delete();
+                        int i = 0;
 
-                            int i = 0;
+                        f = new File(name + ".wav");
 
-                            f = new File(name + ".wav");
-
-                            while (!!f.exists()) {
-                                String temp = String.format(name + "%d", i++);
-                                f = new File(temp + ".wav");
-                            }
-
-                            if (i >= 2) {
-                                String temp = String.format(name + "%d", i - 2);
-                                f = new File(temp + ".wav");
-                            } else {
-                                String temp = String.format(name);
-                                f = new File(temp + ".wav");
-                            }
-
-                            String label = classifier.predict_audio(f);
-                            getStatusLblRecognizee().setText("Animal in record : " + label);
-                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
-                                    getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        while (!!f.exists()) {
+                            String temp = String.format(name + "%d", i++);
+                            f = new File(temp + ".wav");
                         }
 
+                        if (i >= 2) {
+                            String temp = String.format(name + "%d", i - 2);
+                            f = new File(temp + ".wav");
+                        } else {
+                            String temp = String.format(name);
+                            f = new File(temp + ".wav");
+                        }
+
+                        String label = classifier.predict_audio(f);
+                        getStatusLblRecognizee().setText("Animal in record : " + label);
+                        getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
+                                getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
                 }
             });
             getAnimalButtonn.setBounds(new Rectangle(13, 258, 202, 24));
@@ -456,22 +440,19 @@ public class AnimalSoundUI extends JFrame {
     private JButton getGetAnimalButton1() {
         if (getAnimalButton1 == null) {
             getAnimalButton1 = new JButton("Recognize a saved WAV file");
-            getAnimalButton1.addActionListener(new ActionListener() {
+            getAnimalButton1.addActionListener(e -> {
+                File f = getTestFile();
+                if (f != null) {
 
-                public void actionPerformed(ActionEvent e) {
-                    File f = getTestFile();
-                    if (f != null) {
-
-                        try {
-                            String label = opr.hmmGetAnimalFromFile(f);
-                            getStatusLblRecognize().setText("Animal in file : " + label);
-                            getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
-                                    getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-
+                    try {
+                        String label = opr.hmmGetAnimalFromFile(f);
+                        getStatusLblRecognize().setText("Animal in file : " + label);
+                        getImageAnimal().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
+                                getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
                     }
+
                 }
             });
             getAnimalButton1.setBounds(new Rectangle(225, 8, 200, 24));
@@ -482,22 +463,19 @@ public class AnimalSoundUI extends JFrame {
     private JButton getGetAnimalButtonn1() {
         if (getAnimalButtonn1 == null) {
             getAnimalButtonn1 = new JButton("Recognize a saved WAV file");
-            getAnimalButtonn1.addActionListener(new ActionListener() {
+            getAnimalButtonn1.addActionListener(e -> {
+                File f = getTestFile();
+                if (f != null) {
 
-                public void actionPerformed(ActionEvent e) {
-                    File f = getTestFile();
-                    if (f != null) {
-
-                        try {
-                            String label = classifier.predict_audio(f);
-                            getStatusLblRecognizee().setText("Animal in file : " + label);
-                            getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
-                                    getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-
+                    try {
+                        String label = classifier.predict_audio(f);
+                        getStatusLblRecognizee().setText("Animal in file : " + label);
+                        getImageAnimall().setIcon(new ImageIcon(new ImageIcon("image" + File.separator + label + ".jpg").
+                                getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT)));
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
                     }
+
                 }
             });
             getAnimalButtonn1.setBounds(new Rectangle(225, 258, 200, 24));
@@ -565,15 +543,12 @@ public class AnimalSoundUI extends JFrame {
     private JButton updateAnimalForVerify() {
         if (updateAnimalForVerify == null) {
             updateAnimalForVerify = new JButton("Update Animal");
-            updateAnimalForVerify.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    TrainingTestingWaveFiles ttwf = new TrainingTestingWaveFiles("train");
-                    List<String> regs = ttwf.readAnimalWavFolder();
-                    AnimalsComboBoxVerify.removeAllItems();
-                    for (int i = 0; i < regs.size(); i++) {
-                        AnimalsComboBoxVerify.addItem(regs.get(i));
-                    }
+            updateAnimalForVerify.addActionListener(e -> {
+                TrainingTestingWaveFiles ttwf = new TrainingTestingWaveFiles("train");
+                List<String> regs = ttwf.readAnimalWavFolder();
+                AnimalsComboBoxVerify.removeAllItems();
+                for (int i = 0; i < regs.size(); i++) {
+                    AnimalsComboBoxVerify.addItem(regs.get(i));
                 }
             });
             updateAnimalForVerify.setBounds(new Rectangle(13, 111, 110, 24));
@@ -584,15 +559,12 @@ public class AnimalSoundUI extends JFrame {
     private JButton updateAnimalForVerifyy() {
         if (updateAnimalForVerifyy == null) {
             updateAnimalForVerifyy = new JButton("Update Animal");
-            updateAnimalForVerifyy.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    TrainingTestingWaveFiles ttwf = new TrainingTestingWaveFiles("train");
-                    List<String> regs = ttwf.readAnimalWavFolder();
-                    AnimalsComboBoxVerifyy.removeAllItems();
-                    for (int i = 0; i < regs.size(); i++) {
-                        AnimalsComboBoxVerifyy.addItem(regs.get(i));
-                    }
+            updateAnimalForVerifyy.addActionListener(e -> {
+                TrainingTestingWaveFiles ttwf = new TrainingTestingWaveFiles("train");
+                List<String> regs = ttwf.readAnimalWavFolder();
+                AnimalsComboBoxVerifyy.removeAllItems();
+                for (int i = 0; i < regs.size(); i++) {
+                    AnimalsComboBoxVerifyy.addItem(regs.get(i));
                 }
             });
             updateAnimalForVerifyy.setBounds(new Rectangle(13, 361, 110, 24));
@@ -603,25 +575,22 @@ public class AnimalSoundUI extends JFrame {
     private JButton getAddAnimalToComboBtn() {
         if (addAnimalToComboBtn == null) {
             addAnimalToComboBtn = new JButton("Add Animal");
-            addAnimalToComboBtn.addActionListener(new ActionListener() {
+            addAnimalToComboBtn.addActionListener(e -> {
+                String newAnimal = Utils.clean(getAddAnimalToCombo().getText());
+                boolean isAlreadyRegistered = false;
+                if (!newAnimal.isEmpty()) {
 
-                public void actionPerformed(ActionEvent e) {
-                    String newAnimal = Utils.clean(getAddAnimalToCombo().getText());
-                    boolean isAlreadyRegistered = false;
-                    if (!newAnimal.isEmpty()) {
-
-                        for (int i = 0; i < getAnimalsComboBoxAddAnimal().getItemCount(); i++) {
-                            if (getAnimalsComboBoxAddAnimal().getItemAt(i).toString().equalsIgnoreCase(newAnimal)) {
-                                isAlreadyRegistered = true;
-                                break;
-                            }
+                    for (int i = 0; i < getAnimalsComboBoxAddAnimal().getItemCount(); i++) {
+                        if (getAnimalsComboBoxAddAnimal().getItemAt(i).toString().equalsIgnoreCase(newAnimal)) {
+                            isAlreadyRegistered = true;
+                            break;
                         }
+                    }
 
-                        if (!isAlreadyRegistered) {
-                            getAnimalsComboBoxAddAnimal().addItem(getAddAnimalToCombo().getText());
-                            getAnimalsComboBoxAddAnimal().repaint();
-                            getAddAnimalToCombo().setText("");
-                        }
+                    if (!isAlreadyRegistered) {
+                        getAnimalsComboBoxAddAnimal().addItem(getAddAnimalToCombo().getText());
+                        getAnimalsComboBoxAddAnimal().repaint();
+                        getAddAnimalToCombo().setText("");
                     }
                 }
             });
@@ -649,14 +618,11 @@ public class AnimalSoundUI extends JFrame {
     private JButton getGenerateCodeBookBtn() {
         if (generateCodeBookBtn == null) {
             generateCodeBookBtn = new JButton("Generate CodeBook");
-            generateCodeBookBtn.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        opr.generateCodebook();
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
+            generateCodeBookBtn.addActionListener(e -> {
+                try {
+                    opr.generateCodebook();
+                } catch (Exception e2) {
+                    e2.printStackTrace();
                 }
             });
             generateCodeBookBtn.setBounds(10, 20, 167, 23);
@@ -667,17 +633,14 @@ public class AnimalSoundUI extends JFrame {
     private JButton getBtnNewButton_2() {
         if (btnNewButton_2 == null) {
             btnNewButton_2 = new JButton("Train HMM");
-            btnNewButton_2.addActionListener(new ActionListener() {
+            btnNewButton_2.addActionListener(e -> {
+                try {
+                    opr.hmmTrain();
+                } catch (Exception e2) {
+                    e2.printStackTrace();
 
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        opr.hmmTrain();
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-
-                    }
-                    getAnimalsComboBoxVerify().repaint();
                 }
+                getAnimalsComboBoxVerify().repaint();
             });
             btnNewButton_2.setBounds(10, 60, 167, 23);
         }
@@ -697,40 +660,37 @@ public class AnimalSoundUI extends JFrame {
     private JButton getEvalButton() {
         if (evalButton == null) {
             evalButton = new JButton("Evaluate HMM Model");
-            evalButton.addActionListener(new ActionListener() {
+            evalButton.addActionListener(e -> {
+                int correct = 0;
+                int total = 0;
+                File folder = new File("test");
+                for (final File fileEntry : folder.listFiles()) {
+                    System.out.println(fileEntry.getPath());
+                    total++;
 
-                public void actionPerformed(ActionEvent e) {
-                    int correct = 0;
-                    int total = 0;
-                    File folder = new File("test");
-                    for (final File fileEntry : folder.listFiles()) {
-                        System.out.println(fileEntry.getPath());
-                        total++;
+                    String label = fileEntry.getName();
+                    label = label.replaceAll("\\d", "").split("_")[0];
 
-                        String label = fileEntry.getName();
-                        label = label.replaceAll("\\d", "").split("_")[0];
+                    System.out.println("Real: " + label);
 
-                        System.out.println("Real: " + label);
-
-                        File tmp = new File(fileEntry.getPath());
-                        try {
-                            if (opr.hmmGetAnimalFromFile(tmp).equalsIgnoreCase(label)) {
-                                correct++;
-                            }
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
+                    File tmp = new File(fileEntry.getPath());
                     try {
-                        double ans = Math.ceil(1.0 * correct / total * 100000) / 1000;
-                        String result = "Accuracy of HMM Model is : " + ans + "%";
-                        getEvalResult().setText(result);
-                    } catch (Exception ee) {
-                        ee.printStackTrace();
-
+                        if (opr.hmmGetAnimalFromFile(tmp).equalsIgnoreCase(label)) {
+                            correct++;
+                        }
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
-                    getAnimalsComboBoxVerify().repaint();
                 }
+                try {
+                    double ans = Math.ceil(1.0 * correct / total * 100000) / 1000;
+                    String result = "Accuracy of HMM Model is : " + ans + "%";
+                    getEvalResult().setText(result);
+                } catch (Exception ee) {
+                    ee.printStackTrace();
+
+                }
+                getAnimalsComboBoxVerify().repaint();
             });
             evalButton.setBounds(10, 140, 167, 23);
         }
@@ -741,41 +701,38 @@ public class AnimalSoundUI extends JFrame {
     private JButton getEvalButtonn() {
         if (evalButtonn == null) {
             evalButtonn = new JButton("Evaluate ResNet Model");
-            evalButtonn.addActionListener(new ActionListener() {
+            evalButtonn.addActionListener(e -> {
+                int correct = 0;
+                int total = 0;
+                File folder = new File("test");
+                for (final File fileEntry : folder.listFiles()) {
+                    System.out.println(fileEntry.getPath());
 
-                public void actionPerformed(ActionEvent e) {
-                    int correct = 0;
-                    int total = 0;
-                    File folder = new File("test");
-                    for (final File fileEntry : folder.listFiles()) {
-                        System.out.println(fileEntry.getPath());
+                    String label = fileEntry.getName();
+                    label = label.replaceAll("\\d", "").split("_")[0];
 
-                        String label = fileEntry.getName();
-                        label = label.replaceAll("\\d", "").split("_")[0];
+                    System.out.println("Real: " + label);
 
-                        System.out.println("Real: " + label);
+                    total++;
 
-                        total++;
-
-                        File tmp = new File(fileEntry.getPath());
-                        try {
-                            if (classifier.predict_audio(tmp).equalsIgnoreCase(label)) {
-                                correct++;
-                            }
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
+                    File tmp = new File(fileEntry.getPath());
                     try {
-                        double ans = Math.ceil(1.0 * correct / total * 100000) / 1000;
-                        String result = "Accuracy of ResNet Model is : " + ans + "%";
-                        getEvalResultt().setText(result);
-                    } catch (Exception ee) {
-                        ee.printStackTrace();
-
+                        if (classifier.predict_audio(tmp).equalsIgnoreCase(label)) {
+                            correct++;
+                        }
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
-                    getAnimalsComboBoxVerifyy().repaint();
                 }
+                try {
+                    double ans = Math.ceil(1.0 * correct / total * 100000) / 1000;
+                    String result = "Accuracy of ResNet Model is : " + ans + "%";
+                    getEvalResultt().setText(result);
+                } catch (Exception ee) {
+                    ee.printStackTrace();
+
+                }
+                getAnimalsComboBoxVerifyy().repaint();
             });
             evalButtonn.setBounds(10, 180, 167, 23);
         }
@@ -822,64 +779,61 @@ public class AnimalSoundUI extends JFrame {
     private JButton getAddRecord() {
         if (addRecord == null) {
             addRecord = new JButton("Add just recorded to correct folder");
-            addRecord.addActionListener(new ActionListener() {
+            addRecord.addActionListener(arg0 -> {
+                if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
 
-                public void actionPerformed(ActionEvent arg0) {
-                    if (soundCapture.isSoundDataAvailable() && getAnimalsComboBoxVerify().getItemCount() > 0) {
+                    try {
+                        soundCapture.setSaveFileName("F:\\tmp\\tmp");
+                        soundCapture.getFileNameAndSaveFile();
+                        String name = soundCapture.getSaveFileName();
 
-                        try {
-                            soundCapture.setSaveFileName("F:\\tmp\\tmp");
-                            soundCapture.getFileNameAndSaveFile();
-                            String name = soundCapture.getSaveFileName();
+                        File f = new File(name);
+                        int i = 0;
+                        if (!f.exists())
+                            f.mkdirs();
 
-                            File f = new File(name);
-                            int i = 0;
-                            if (!f.exists())
-                                f.mkdirs();
+                        f.delete();
 
-                            f.delete();
+                        f = new File(name + ".wav");
 
-                            f = new File(name + ".wav");
-
-                            while (f.exists()) {
-                                String temp = String.format(name + "%d", i++);
-                                f = new File(temp + ".wav");
-                            }
-
-                            if (i > 1) {
-                                String temp = String.format(name + "%d", i - 2);
-                                f = new File(temp + ".wav");
-                            } else {
-                                String temp = String.format(name);
-                                f = new File(temp + ".wav");
-                            }
-
-                            File ff = new File("F:\\tmpp\\tmpp.wav");
-
-                            if (!ff.exists()) {
-                                ff.mkdirs();
-                            }
-
-                            Path FROM = Paths.get(f.getPath());
-                            Path TO = Paths.get(ff.getPath());
-                            CopyOption[] options = new CopyOption[]{
-                                    StandardCopyOption.REPLACE_EXISTING,
-                                    StandardCopyOption.COPY_ATTRIBUTES
-                            };
-                            Files.copy(FROM, TO, options);
-
-                            String label = classifier.predict_audio(ff);
-                            int count = Objects.requireNonNull(new File("data" + File.separator + label).list()).length;
-
-                            FROM = Paths.get(f.getPath());
-                            TO = Paths.get(String.format("data" + File.separator + label + File.separator + label + "_%d.wav", count));
-                            Files.copy(FROM, TO, options);
-                            JOptionPane.showMessageDialog(null, String.format("Success add just recorded to : %s", TO));
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        while (f.exists()) {
+                            String temp = String.format(name + "%d", i++);
+                            f = new File(temp + ".wav");
                         }
 
+                        if (i > 1) {
+                            String temp = String.format(name + "%d", i - 2);
+                            f = new File(temp + ".wav");
+                        } else {
+                            String temp = String.format(name);
+                            f = new File(temp + ".wav");
+                        }
+
+                        File ff = new File("F:\\tmpp\\tmpp.wav");
+
+                        if (!ff.exists()) {
+                            ff.mkdirs();
+                        }
+
+                        Path FROM = Paths.get(f.getPath());
+                        Path TO = Paths.get(ff.getPath());
+                        CopyOption[] options = new CopyOption[]{
+                                StandardCopyOption.REPLACE_EXISTING,
+                                StandardCopyOption.COPY_ATTRIBUTES
+                        };
+                        Files.copy(FROM, TO, options);
+
+                        String label = classifier.predict_audio(ff);
+                        int count = Objects.requireNonNull(new File("data" + File.separator + label).list()).length;
+
+                        FROM = Paths.get(f.getPath());
+                        TO = Paths.get(String.format("data" + File.separator + label + File.separator + label + "_%d.wav", count));
+                        Files.copy(FROM, TO, options);
+                        JOptionPane.showMessageDialog(null, String.format("Success add just recorded to : %s", TO));
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
                 }
             });
             addRecord.setBounds(new Rectangle(11, 143, 202, 24));
@@ -890,41 +844,38 @@ public class AnimalSoundUI extends JFrame {
     private JButton getAddFile() {
         if (addFile == null) {
             addFile = new JButton("Add saved WAV to correct folder");
-            addFile.addActionListener(new ActionListener() {
+            addFile.addActionListener(e -> {
+                File f = getTestFile();
+                File ff = new File("F:\\tmpp\\tmpp.wav");
 
-                public void actionPerformed(ActionEvent e) {
-                    File f = getTestFile();
-                    File ff = new File("F:\\tmpp\\tmpp.wav");
-
-                    if (ff.exists() == false) {
-                        ff.mkdirs();
-                    }
-
-                    Path FROM = Paths.get(f.getPath());
-                    Path TO = Paths.get(ff.getPath());
-                    CopyOption[] options = new CopyOption[]{
-                            StandardCopyOption.REPLACE_EXISTING,
-                            StandardCopyOption.COPY_ATTRIBUTES
-                    };
-                    try {
-                        Files.copy(FROM, TO, options);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-
-                    String label = classifier.predict_audio(ff);
-                    int count = Objects.requireNonNull(new File("data" + File.separator + label).list()).length;
-
-                    TO = Paths.get(String.format("data" + File.separator + label + File.separator + label + "_%d.wav", count));
-                    FROM = Paths.get(f.getPath());
-
-                    try {
-                        Files.copy(FROM, TO, options);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                    JOptionPane.showMessageDialog(null, String.format("Success add saved WAV to : %s", TO));
+                if (ff.exists() == false) {
+                    ff.mkdirs();
                 }
+
+                Path FROM = Paths.get(f.getPath());
+                Path TO = Paths.get(ff.getPath());
+                CopyOption[] options = new CopyOption[]{
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.COPY_ATTRIBUTES
+                };
+                try {
+                    Files.copy(FROM, TO, options);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                String label = classifier.predict_audio(ff);
+                int count = Objects.requireNonNull(new File("data" + File.separator + label).list()).length;
+
+                TO = Paths.get(String.format("data" + File.separator + label + File.separator + label + "_%d.wav", count));
+                FROM = Paths.get(f.getPath());
+
+                try {
+                    Files.copy(FROM, TO, options);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                JOptionPane.showMessageDialog(null, String.format("Success add saved WAV to : %s", TO));
             });
             addFile.setBounds(new Rectangle(11, 183, 202, 24));
         }
