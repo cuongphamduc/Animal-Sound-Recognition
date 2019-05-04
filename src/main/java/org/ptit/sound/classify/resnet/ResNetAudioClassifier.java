@@ -42,6 +42,12 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
     }
 
     @Override
+    public Float predict_image_percent(BufferedImage image, String animal) {
+        return predict_image_percent(image, animal, MelSpectrogramDimension.Width,
+                MelSpectrogramDimension.Height);
+    }
+
+    @Override
     public float[] encode_image(BufferedImage image, int imgWidth, int imgHeight){
 
         image = ImageUtils.resizeImage(image, imgWidth, imgHeight);
@@ -106,5 +112,16 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
         }
 
         return "NA";
+    }
+
+    @Override
+    public Float predict_audio_percent(File f, String animal) {
+        BufferedImage image = MelSpectrogram.convert_to_image(f);
+
+        if(image != null) {
+            return predict_image_percent(image, animal);
+        }
+
+        return 0.0f;
     }
 }

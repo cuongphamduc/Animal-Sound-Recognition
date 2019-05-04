@@ -2,6 +2,7 @@ package org.ptit.sound.classify;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
 
 public interface AudioClassifier extends AudioEncoder {
     String[] labels = new String[]{
@@ -18,9 +19,11 @@ public interface AudioClassifier extends AudioEncoder {
             "frog",
     };
 
-
+    Float predict_audio_percent(File f, String animal);
 
     String predict_image(BufferedImage image);
+
+    Float predict_image_percent(BufferedImage image, String animal);
 
     String predict_audio(File f);
 
@@ -44,5 +47,19 @@ public interface AudioClassifier extends AudioEncoder {
         }
 
         return "unknown";
+    }
+
+    default Float predict_image_percent(BufferedImage image, String animal, int imgWidth, int imgHeight) {
+
+        float[] predicted = encode_image(image, imgWidth, imgHeight);
+        if(predicted != null) {
+            float res = predicted[Arrays.asList(labels).indexOf(animal)];
+
+            System.out.println("Percent is " + animal + " : " + res);
+            System.out.println("----------------------------------");
+            return res;
+        }
+
+        return 0.0f;
     }
 }
