@@ -130,7 +130,7 @@ public class Operations {
         Animals = db.readRegistered();
         db = null;
 //        System.out.println("Registred Animals ::: count : " + Animals.size());
-//        ArrayWriter.printStringArrayToConole(Animals);
+//        ArrayWriter.printStringArrayToConsole(Animals);
         hmmModels = new HiddenMarkov[Animals.size()];
 
         for (int i = 0; i < Animals.size(); i++) {

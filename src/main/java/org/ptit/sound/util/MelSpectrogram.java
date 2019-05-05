@@ -110,7 +110,7 @@ public class MelSpectrogram  implements PitchDetectionHandler {
         float[] pixelAmplitudes = new float[outputFrameHeight];
         //iterate the large array and map to pixels
         for (int i = amplitudes.length/800; i < amplitudes.length; i++) {
-            int pixelY = frequencyToBin(i * 44100 / (amplitudes.length * 8));
+            int pixelY = frequencyToBin(i * 44100.0 / (amplitudes.length * 8));
             pixelAmplitudes[pixelY] += amplitudes[i];
             maxAmplitude = Math.max(pixelAmplitudes[pixelY], maxAmplitude);
         }
@@ -219,7 +219,7 @@ public class MelSpectrogram  implements PitchDetectionHandler {
     }
 
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        File file = new File("F:\\speech-recognition-java-hidden-markov-model-vq-mfcc\\SpeechRecognitionHMM\\zzzzz");
+        File file = new File("F:\\mydataset");
         System.out.println(file.getAbsolutePath());
         if(file.isDirectory()) {
             for (File class_folder : file.listFiles()) {

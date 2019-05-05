@@ -573,7 +573,7 @@ public class JSoundCapture extends JPanel implements ActionListener {
             audioData = null;
             // wd.set
             audioData = wd.extractFloatDataFromAudioInputStream(audioInputStream);
-            // ArrayWriter.printFloatArrayToConole(audioData);
+            // ArrayWriter.printFloatArrayToConsole(audioData);
             int frames_per_pixel = wd.getAudioBytes().length / wd.getFormat().getFrameSize() / w;
             byte my_byte = 0;
             double y_last = 0;

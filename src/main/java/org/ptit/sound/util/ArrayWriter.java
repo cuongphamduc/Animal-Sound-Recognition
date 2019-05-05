@@ -53,7 +53,7 @@ public class ArrayWriter {
      *
      * @param array input array
      */
-    public static void printIntArrayToConole(int[] array) {
+    public static void printIntArrayToConsole(int[] array) {
         for (int i = 0; i < array.length; i++) {
             System.out.println(array[i]);
         }
@@ -113,7 +113,7 @@ public class ArrayWriter {
      *
      * @param array input array
      */
-    public static void printDoubleArrayToConole(double[] array) {
+    public static void printDoubleArrayToConsole(double[] array) {
         for (int i = 0; i < array.length; i++) {
             System.out.println(array[i]);
         }
@@ -124,7 +124,7 @@ public class ArrayWriter {
      *
      * @param array input array
      */
-    public static void print2DTabbedDoubleArrayToConole(double[][] array) {
+    public static void print2DTabbedDoubleArrayToConsole(double[][] array) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
                 System.out.print(array[i][j] + "\t");
@@ -139,7 +139,7 @@ public class ArrayWriter {
      *
      * @param array input array
      */
-    public static void printFrameWise2DDoubleArrayToConole(double[][] array) {
+    public static void printFrameWise2DDoubleArrayToConsole(double[][] array) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
                 System.out.println(array[j][i]);
@@ -154,7 +154,7 @@ public class ArrayWriter {
      *
      * @param array input array
      */
-    public static void print2DDoubleArrayToConole(double[][] array) {
+    public static void print2DDoubleArrayToConsole(double[][] array) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
                 System.out.println(array[i][j]);
@@ -192,13 +192,13 @@ public class ArrayWriter {
      *
      * @param array input array
      */
-    public static void printStringArrayToConole(String[] array) {
+    public static void printStringArrayToConsole(String[] array) {
         for (int i = 0; i < array.length; i++) {
             System.out.println(array[i]);
         }
     }
 
-    public static void printStringArrayToConole(List<String> array) {
+    public static void printStringArrayToConsole(List<String> array) {
         for (String string : array) {
             System.out.println(string);
         }
@@ -232,7 +232,7 @@ public class ArrayWriter {
      *
      * @param array input array
      */
-    public static void printFloatArrayToConole(float[] array) {
+    public static void printFloatArrayToConsole(float[] array) {
         for (int i = 0; i < array.length; i++) {
             System.out.println(array[i]);
         }

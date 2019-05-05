@@ -283,7 +283,7 @@ public class HiddenMarkov {
         HMMModel model = new HMMModel();
         model = (HMMModel) db.readModel(Animal);// System.out.println(model.getClass());
         num_obSeq = model.getNum_obSeq();
-        output = model.getOutput();// ArrayWriter.print2DTabbedDoubleArrayToConole(output);
+        output = model.getOutput();// ArrayWriter.print2DTabbedDoubleArrayToConsole(output);
         transition = model.getTransition();
         pi = model.getPi();
         num_states = output.length;
@@ -329,11 +329,11 @@ public class HiddenMarkov {
         db.setType("hmm");
         HMMModel model = new HMMModel();
         model.setOutput(output);
-        ArrayWriter.print2DTabbedDoubleArrayToConole(output);
+        ArrayWriter.print2DTabbedDoubleArrayToConsole(output);
         model.setPi(pi);
-        ArrayWriter.printDoubleArrayToConole(pi);
+        ArrayWriter.printDoubleArrayToConsole(pi);
         model.setTransition(transition);
-        ArrayWriter.print2DTabbedDoubleArrayToConole(transition);
+        ArrayWriter.print2DTabbedDoubleArrayToConsole(transition);
         db.saveModel(model, modelName);
     }
 }
