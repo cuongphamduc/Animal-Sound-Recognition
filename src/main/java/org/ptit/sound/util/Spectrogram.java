@@ -24,7 +24,7 @@ import java.io.IOException;
 
 @Getter
 @Setter
-public class MelSpectrogram  implements PitchDetectionHandler {
+public class Spectrogram  implements PitchDetectionHandler {
 
 
     private boolean log2Console = false;
@@ -87,9 +87,6 @@ public class MelSpectrogram  implements PitchDetectionHandler {
             } else {
                 binEstimate = (frequency - minFrequency) / maxFrequency * outputFrameHeight;
             }
-            if (binEstimate > 700 && log2Console) {
-                System.out.println(binEstimate + "");
-            }
             bin = outputFrameHeight - 1 - (int) binEstimate;
         }
         return bin;
@@ -128,36 +125,36 @@ public class MelSpectrogram  implements PitchDetectionHandler {
         }
 
 
-        if (showPitch && pitch != -1) {
-            int pitchIndex = frequencyToBin(pitch);
-            bufferedGraphics.setColor(Color.RED);
-            bufferedGraphics.fillRect(position, pitchIndex, 1, 1);
-            currentPitch = "Current frequency: " + (int) pitch + "Hz";
-        }
-
-        if(showMarkers) {
-            bufferedGraphics.clearRect(0,0, 190,30);
-            bufferedGraphics.setColor(Color.WHITE);
-
-
-            bufferedGraphics.drawString(currentPitch, 20, 20);
-
-
-            for(int i = 100 ; i < 500; i += 100){
-                int bin = frequencyToBin(i);
-                bufferedGraphics.drawLine(0, bin, 5, bin);
-            }
-
-            for(int i = 500 ; i <= 20000; i += 500){
-                int bin = frequencyToBin(i);
-                bufferedGraphics.drawLine(0, bin, 5, bin);
-            }
-
-            for (int i = 100; i <= 20000; i *= 10) {
-                int bin = frequencyToBin(i);
-                bufferedGraphics.drawString(String.valueOf(i), 10, bin);
-            }
-        }
+//        if (showPitch && pitch != -1) {
+//            int pitchIndex = frequencyToBin(pitch);
+//            bufferedGraphics.setColor(Color.RED);
+//            bufferedGraphics.fillRect(position, pitchIndex, 1, 1);
+//            currentPitch = "Current frequency: " + (int) pitch + "Hz";
+//        }
+//
+//        if(showMarkers) {
+//            bufferedGraphics.clearRect(0,0, 190,30);
+//            bufferedGraphics.setColor(Color.WHITE);
+//
+//
+//            bufferedGraphics.drawString(currentPitch, 20, 20);
+//
+//
+//            for(int i = 100 ; i < 500; i += 100){
+//                int bin = frequencyToBin(i);
+//                bufferedGraphics.drawLine(0, bin, 5, bin);
+//            }
+//
+//            for(int i = 500 ; i <= 20000; i += 500){
+//                int bin = frequencyToBin(i);
+//                bufferedGraphics.drawLine(0, bin, 5, bin);
+//            }
+//
+//            for (int i = 100; i <= 20000; i *= 10) {
+//                int bin = frequencyToBin(i);
+//                bufferedGraphics.drawString(String.valueOf(i), 10, bin);
+//            }
+//        }
 
         position+=3;
         position = position % outputFrameWidth;
@@ -205,9 +202,9 @@ public class MelSpectrogram  implements PitchDetectionHandler {
             return convert_mp3_to_image(f);
         }
 
-        MelSpectrogram melGram = new MelSpectrogram();
-        melGram.setOutputFrameWidth(MelSpectrogramDimension.Width);
-        melGram.setOutputFrameHeight(MelSpectrogramDimension.Height);
+        Spectrogram melGram = new Spectrogram();
+        melGram.setOutputFrameWidth(SpectrogramDimension.Width);
+        melGram.setOutputFrameHeight(SpectrogramDimension.Height);
 
 
         try {
@@ -233,9 +230,9 @@ public class MelSpectrogram  implements PitchDetectionHandler {
 
                             if(outputFile.exists()) continue;
 
-                            MelSpectrogram melGram = new MelSpectrogram();
-                            melGram.setOutputFrameWidth(MelSpectrogramDimension.Width);
-                            melGram.setOutputFrameHeight(MelSpectrogramDimension.Height);
+                            Spectrogram melGram = new Spectrogram();
+                            melGram.setOutputFrameWidth(SpectrogramDimension.Width);
+                            melGram.setOutputFrameHeight(SpectrogramDimension.Height);
                             BufferedImage image = melGram.convertAudio(f);
 
                             ImageIO.write(image, "png", outputFile);

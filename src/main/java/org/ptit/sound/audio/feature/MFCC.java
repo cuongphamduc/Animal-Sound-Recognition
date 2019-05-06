@@ -90,7 +90,7 @@ public class MFCC {
             }
 
             for (int i = cbin[k] + 1; i <= cbin[k + 1]; i++) {
-                num2 += (1 - ((i - cbin[k]) / (cbin[k + 1] - cbin[k] + 1))) * bin[i];
+                num2 += (1 - ((i - cbin[k])/ (cbin[k + 1] - cbin[k] + 1))) * bin[i];
             }
 
             temp[k] = num1 + num2;

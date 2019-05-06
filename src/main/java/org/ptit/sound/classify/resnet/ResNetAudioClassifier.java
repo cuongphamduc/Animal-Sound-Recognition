@@ -1,7 +1,7 @@
 package org.ptit.sound.classify.resnet;
 
-import org.ptit.sound.util.MelSpectrogram;
-import org.ptit.sound.util.MelSpectrogramDimension;
+import org.ptit.sound.util.Spectrogram;
+import org.ptit.sound.util.SpectrogramDimension;
 import org.ptit.sound.classify.AudioClassifier;
 import org.ptit.sound.classify.TrainedModelLoader;
 import org.ptit.sound.util.ImageUtils;
@@ -37,14 +37,14 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
 
     @Override
     public String predict_image(BufferedImage image) {
-        return predict_image(image, MelSpectrogramDimension.Width,
-                MelSpectrogramDimension.Height);
+        return predict_image(image, SpectrogramDimension.Width,
+                SpectrogramDimension.Height);
     }
 
     @Override
     public Float predict_image_percent(BufferedImage image, String animal) {
-        return predict_image_percent(image, animal, MelSpectrogramDimension.Width,
-                MelSpectrogramDimension.Height);
+        return predict_image_percent(image, animal, SpectrogramDimension.Width,
+                SpectrogramDimension.Height);
     }
 
     @Override
@@ -80,8 +80,8 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
 
     @Override
     public float[] encode_image(BufferedImage image) {
-        return encode_image(image, MelSpectrogramDimension.Width,
-                MelSpectrogramDimension.Height);
+        return encode_image(image, SpectrogramDimension.Width,
+                SpectrogramDimension.Height);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
 
     @Override
     public float[] encode_audio(File f) {
-        BufferedImage image = MelSpectrogram.convert_to_image(f);
+        BufferedImage image = Spectrogram.convert_to_image(f);
 
         if(image != null) {
             return encode_image(image);
@@ -105,7 +105,7 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
 
     @Override
     public String predict_audio(File f) {
-        BufferedImage image = MelSpectrogram.convert_to_image(f);
+        BufferedImage image = Spectrogram.convert_to_image(f);
 
         if(image != null) {
             return predict_image(image);
@@ -116,7 +116,7 @@ public class ResNetAudioClassifier implements TrainedModelLoader, AudioClassifie
 
     @Override
     public Float predict_audio_percent(File f, String animal) {
-        BufferedImage image = MelSpectrogram.convert_to_image(f);
+        BufferedImage image = Spectrogram.convert_to_image(f);
 
         if(image != null) {
             return predict_image_percent(image, animal);
