@@ -245,13 +245,13 @@ public class AnimalSoundUI extends JFrame {
                         f = new File(name + ".wav");
 
                         while (f.exists()) {
-                            String temp = String.format(name + "%d", i++);
+                            String temp = String.format(name + "_%d", i++);
                             f = new File(temp + ".wav");
                             continue;
                         }
 
                         if (i >= 2) {
-                            String temp = String.format(name + "%d", i - 2);
+                            String temp = String.format(name + "_%d", i - 2);
                             f = new File(temp + ".wav");
                         }
                         if (i == 1) {
@@ -355,20 +355,24 @@ public class AnimalSoundUI extends JFrame {
 
                         int i = 0;
 
-                        f = new File(name + ".wav");
 
-                        while (!!f.exists()) {
-                            String temp = String.format(name + "%d", i++);
+                        f = new File(name + ".wav");
+                        while (f.exists() == true) {
+                            String temp = String.format(name + "_%d", i++);
                             f = new File(temp + ".wav");
                         }
 
+//                        System.out.println("i == " + i);
+
                         if (i >= 2) {
-                            String temp = String.format(name + "%d", i - 2);
+                            String temp = String.format(name + "_%d", i - 2);
                             f = new File(temp + ".wav");
                         } else {
                             String temp = String.format(name);
                             f = new File(temp + ".wav");
                         }
+
+                        System.out.println(f.getAbsolutePath());
 
                         String label = classifier.predict_audio(f);
                         getStatusLblRecognizee().setText("Animal in record : " + label);
@@ -802,12 +806,12 @@ public class AnimalSoundUI extends JFrame {
                         f = new File(name + ".wav");
 
                         while (f.exists()) {
-                            String temp = String.format(name + "%d", i++);
+                            String temp = String.format(name + "_%d", i++);
                             f = new File(temp + ".wav");
                         }
 
                         if (i > 1) {
-                            String temp = String.format(name + "%d", i - 2);
+                            String temp = String.format(name + "_%d", i - 2);
                             f = new File(temp + ".wav");
                         } else {
                             String temp = String.format(name);

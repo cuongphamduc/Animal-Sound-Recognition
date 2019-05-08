@@ -20,11 +20,9 @@ public class TensorUtils {
             for (int column = 0; column < imgWidth; column++) {
                 int pixel = image.getRGB(column, row);
 
-                float red = (pixel >> 16) & 0xff;
-                /*
-                float green = (pixel >> 8) & 0xff;
-                float blue = pixel & 0xff;*/
-                fb.put(index++, red);
+                float color = (pixel >> 16) & 0xff;
+
+                fb.put(index++, color);
             }
         }
 
