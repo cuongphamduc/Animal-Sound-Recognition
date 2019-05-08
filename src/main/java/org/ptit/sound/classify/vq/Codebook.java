@@ -106,7 +106,7 @@ public class Codebook {
     }
 
     protected void split() {
-        System.out.println("Centroids length now becomes " + centroids.length + 2);
+//        System.out.println("Centroids length now becomes " + centroids.length + 2);
         Centroid temp[] = new Centroid[centroids.length * 2];
         double tCo[][];
         for (int i = 0; i < temp.length; i += 2) {

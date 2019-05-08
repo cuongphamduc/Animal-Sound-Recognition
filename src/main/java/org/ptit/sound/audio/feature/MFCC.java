@@ -82,6 +82,7 @@ public class MFCC {
     private double[] melFilter(double[] bin, int[] cbin) {
         double[] temp = new double[numMelFilters + 2];
 
+        //bin : fft, cbin : fft in filter
         for (int k = 1; k <= numMelFilters; k++) {
             double num1 = 0.0, num2 = 0.0;
 
@@ -90,7 +91,7 @@ public class MFCC {
             }
 
             for (int i = cbin[k] + 1; i <= cbin[k + 1]; i++) {
-                num2 += (1 - ((i - cbin[k])/ (cbin[k + 1] - cbin[k] + 1))) * bin[i];
+                num2 += (1 - ((i - cbin[k + 1])/ (cbin[k + 1] - cbin[k] + 1))) * bin[i];
             }
 
             temp[k] = num1 + num2;

@@ -24,32 +24,22 @@ import java.io.IOException;
 
 @Getter
 @Setter
-public class Spectrogram  implements PitchDetectionHandler {
+public class Spectrogram implements PitchDetectionHandler {
 
-
-    private boolean log2Console = false;
-    private boolean showMarkers = false;
-    private boolean showPitch = false;
-
-    private float sampleRate = 44100;
-    private int bufferSize = 1024 * 4;
-    private int overlap = 768 * 4 ;
-
-    private double pitch;
-
-    private int outputFrameWidth = 640*4;
-    private int outputFrameHeight = 480*4;
-
-    private boolean playBack = false;
-
-    private boolean wrapEnabled = false;
 
     String currentPitch = "";
     int position = 0;
-
-    BufferedImage bufferedImage = new BufferedImage(outputFrameWidth,outputFrameHeight, BufferedImage.TYPE_INT_RGB);
-
-    AudioProcessor fftProcessor = new AudioProcessor(){
+    private boolean log2Console = false;
+    private boolean showMarkers = false;
+    private boolean showPitch = false;
+    private float sampleRate = 44100;
+    private int bufferSize = 1024 * 4;
+    private int overlap = 768 * 4;
+    private double pitch;
+    private int outputFrameWidth = 640 * 4;
+    private int outputFrameHeight = 480 * 4;
+    BufferedImage bufferedImage = new BufferedImage(outputFrameWidth, outputFrameHeight, BufferedImage.TYPE_INT_RGB);
+    AudioProcessor fftProcessor = new AudioProcessor() {
 
         FFT fft = new FFT(bufferSize);
         float[] amplitudes = new float[bufferSize];
@@ -66,27 +56,78 @@ public class Spectrogram  implements PitchDetectionHandler {
             System.arraycopy(audioFloatBuffer, 0, transformBuffer, 0, audioFloatBuffer.length);
             fft.forwardTransform(transformBuffer);
             fft.modulus(transformBuffer, amplitudes);
-            drawFFT(pitch, amplitudes,fft, bufferedImage);
+            drawFFT(pitch, amplitudes, fft, bufferedImage);
             return true;
         }
 
     };
+    private boolean playBack = false;
+    private boolean wrapEnabled = false;
+
+    public static BufferedImage convert_mp3_to_image(File mp3) {
+        File tempFile = AudioUtils.convertMp3ToWave(mp3);
+        BufferedImage img = convert_to_image(tempFile);
+        tempFile.delete();
+        return img;
+    }
+
+    public static BufferedImage convert_to_image(File f) {
+
+        if (f.getPath().toLowerCase().endsWith(".mp3")) {
+            return convert_mp3_to_image(f);
+        }
+
+        Spectrogram melGram = new Spectrogram();
+        melGram.setOutputFrameWidth(SpectrogramDimension.Width);
+        melGram.setOutputFrameHeight(SpectrogramDimension.Height);
+
+
+        try {
+            return melGram.convertAudio(f);
+        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        File file = new File("F:\\mydataset");
+        System.out.println(file.getAbsolutePath());
+        if (file.isDirectory()) {
+            for (File class_folder : file.listFiles()) {
+                if (class_folder.isDirectory()) {
+                    for (File f : class_folder.listFiles()) {
+                        String file_path = f.getAbsolutePath();
+                        if (file_path.endsWith("wav")) {
+                            System.out.println("Converting " + file_path + " ...");
+                            String output_image_path = file_path + ".png";
+                            File outputFile = new File(output_image_path);
+
+                            if (outputFile.exists()) continue;
+
+                            Spectrogram melGram = new Spectrogram();
+                            melGram.setOutputFrameWidth(SpectrogramDimension.Width);
+                            melGram.setOutputFrameHeight(SpectrogramDimension.Height);
+                            BufferedImage image = melGram.convertAudio(f);
+
+                            ImageIO.write(image, "png", outputFile);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private int frequencyToBin(final double frequency) {
         final double minFrequency = 50; // Hz
         final double maxFrequency = 11000; // Hz
         int bin = 0;
-        final boolean logaritmic = true;
         if (frequency != 0 && frequency > minFrequency && frequency < maxFrequency) {
             double binEstimate = 0;
-            if (logaritmic) {
-                final double minCent = PitchConverter.hertzToAbsoluteCent(minFrequency);
-                final double maxCent = PitchConverter.hertzToAbsoluteCent(maxFrequency);
-                final double absCent = PitchConverter.hertzToAbsoluteCent(frequency * 2);
-                binEstimate = (absCent - minCent) / maxCent * outputFrameHeight;
-            } else {
-                binEstimate = (frequency - minFrequency) / maxFrequency * outputFrameHeight;
-            }
+            final double minCent = PitchConverter.hertzToAbsoluteCent(minFrequency);
+            final double maxCent = PitchConverter.hertzToAbsoluteCent(maxFrequency);
+            final double absCent = PitchConverter.hertzToAbsoluteCent(frequency * 2);
+            binEstimate = (absCent - minCent) / maxCent * outputFrameHeight;
             bin = outputFrameHeight - 1 - (int) binEstimate;
         }
         return bin;
@@ -102,17 +143,16 @@ public class Spectrogram  implements PitchDetectionHandler {
 
         Graphics2D bufferedGraphics = bufferedImage.createGraphics();
 
-        double maxAmplitude=0;
-        //for every pixel calculate an amplitude
+        double maxAmplitude = 0;
+
         float[] pixelAmplitudes = new float[outputFrameHeight];
-        //iterate the large array and map to pixels
-        for (int i = amplitudes.length/800; i < amplitudes.length; i++) {
+
+        for (int i = amplitudes.length / 800; i < amplitudes.length; i++) {
             int pixelY = frequencyToBin(i * 44100.0 / (amplitudes.length * 8));
             pixelAmplitudes[pixelY] += amplitudes[i];
             maxAmplitude = Math.max(pixelAmplitudes[pixelY], maxAmplitude);
         }
 
-        //draw the pixels
         for (int i = 0; i < pixelAmplitudes.length; i++) {
             Color color = Color.black;
             if (maxAmplitude != 0) {
@@ -156,19 +196,19 @@ public class Spectrogram  implements PitchDetectionHandler {
 //            }
 //        }
 
-        position+=3;
+        position += 3;
         position = position % outputFrameWidth;
     }
 
     public BufferedImage convertAudio(File audioFile) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
 
         AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile, bufferSize, overlap);
-        if(playBack) {
+        if (playBack) {
             AudioFormat format = AudioSystem.getAudioFileFormat(audioFile).getFormat();
             dispatcher.addAudioProcessor(new AudioPlayer(format));
         }
 
-        bufferedImage = new BufferedImage(outputFrameWidth,outputFrameHeight, BufferedImage.TYPE_INT_RGB);
+        bufferedImage = new BufferedImage(outputFrameWidth, outputFrameHeight, BufferedImage.TYPE_INT_RGB);
 
         dispatcher.addAudioProcessor(fftProcessor);
 
@@ -180,66 +220,12 @@ public class Spectrogram  implements PitchDetectionHandler {
         return bufferedImage;
     }
 
-    public void handlePitch(PitchDetectionResult pitchDetectionResult,AudioEvent audioEvent) {
-        if(pitchDetectionResult.isPitched()){
+    public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
+        if (pitchDetectionResult.isPitched()) {
             pitch = pitchDetectionResult.getPitch();
         } else {
             pitch = -1;
         }
 
-    }
-
-    public static BufferedImage convert_mp3_to_image(File mp3){
-        File tempFile = AudioUtils.convertMp3ToWave(mp3);
-        BufferedImage img = convert_to_image(tempFile);
-        tempFile.delete();
-        return img;
-    }
-
-    public static BufferedImage convert_to_image(File f) {
-
-        if(f.getPath().toLowerCase().endsWith(".mp3")){
-            return convert_mp3_to_image(f);
-        }
-
-        Spectrogram melGram = new Spectrogram();
-        melGram.setOutputFrameWidth(SpectrogramDimension.Width);
-        melGram.setOutputFrameHeight(SpectrogramDimension.Height);
-
-
-        try {
-            return melGram.convertAudio(f);
-        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        File file = new File("F:\\mydataset");
-        System.out.println(file.getAbsolutePath());
-        if(file.isDirectory()) {
-            for (File class_folder : file.listFiles()) {
-                if(class_folder.isDirectory()) {
-                    for (File f : class_folder.listFiles()) {
-                        String file_path = f.getAbsolutePath();
-                        if (file_path.endsWith("wav")) {
-                            System.out.println("Converting " + file_path + " ...");
-                            String output_image_path = file_path + ".png";
-                            File outputFile = new File(output_image_path);
-
-                            if(outputFile.exists()) continue;
-
-                            Spectrogram melGram = new Spectrogram();
-                            melGram.setOutputFrameWidth(SpectrogramDimension.Width);
-                            melGram.setOutputFrameHeight(SpectrogramDimension.Height);
-                            BufferedImage image = melGram.convertAudio(f);
-
-                            ImageIO.write(image, "png", outputFile);
-                        }
-                    }
-                }
-            }
-        }
     }
 }

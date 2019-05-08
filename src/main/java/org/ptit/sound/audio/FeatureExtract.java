@@ -47,7 +47,6 @@ public class FeatureExtract {
 
     public void makeMfccFeatureVector() {
         calculateMFCC();
-        doCepstralMeanNormalization();
 
         delta.setRegressionWindow(2);
         deltaMfcc = delta.performDelta2D(mfccFeature);
@@ -93,23 +92,4 @@ public class FeatureExtract {
         }
     }
 
-    private void doCepstralMeanNormalization() {
-        double sum;
-        double mean;
-        double[][] mCeps = new double[numOfFrames][numCepstral - 1];
-
-        for (int i = 0; i < numCepstral - 1; i++) {
-            sum = 0.0;
-
-            for (int j = 0; j < numOfFrames; j++) {
-                sum += mfccFeature[j][i];
-            }
-
-            mean = sum / numOfFrames;
-
-            for (int j = 0; j < numOfFrames; j++) {
-                mCeps[j][i] = mfccFeature[j][i] - mean;
-            }
-        }
-    }
 }

@@ -6,26 +6,58 @@ import org.ptit.sound.util.ArrayWriter;
 
 public class HiddenMarkov {
 
+    protected final int delta = 2;
     final double MIN_PROBABILITY = 0.0001;
+    public int[] q;
     protected int len_obSeq;
     protected int num_states;
     protected int num_symbols;
-    protected final int delta = 2;
-    protected int obSeq[][];
-    protected int currentSeq[];
+    protected int[][] obSeq;
+    protected int[] currentSeq;
     protected int num_obSeq;
-    protected double transition[][];
-    protected double output[][];
-    protected double pi[];
-    protected double alpha[][];
-    protected double beta[][];
-    protected double scaleFactor[];
-    private int psi[][];
-    public int q[];
+    protected double[][] transition;
+    protected double[][] output;
+    protected double[] pi;
+    protected double[][] alpha;
+    protected double[][] beta;
+    protected double[] scaleFactor;
+    private int[][] psi;
 
-    public double viterbi(int testSeq[]) {
+    public HiddenMarkov(String Animal) throws Exception {
+        DataBase db = new ObjectIODataBase();
+        db.setType("hmm");
+        HMMModel model = new HMMModel();
+        model = (HMMModel) db.readModel(Animal);// System.out.println(model.getClass());
+        num_obSeq = model.getNum_obSeq();
+        output = model.getOutput();// ArrayWriter.print2DTabbedDoubleArrayToConsole(output);
+        transition = model.getTransition();
+        pi = model.getPi();
+        num_states = output.length;
+        num_symbols = output[0].length;
+        // System.out.println("num states :"+num_states+"num symbols :"+num_symbols);
+    }
+
+    public HiddenMarkov(int num_states, int num_symbols) {
+        this.num_states = num_states;
+        this.num_symbols = num_symbols;
+        transition = new double[num_states][num_states];
+        output = new double[num_states][num_symbols];
+        pi = new double[num_states];
+
+        pi[0] = 1;
+        for (int i = 1; i < num_states; i++) {
+            pi[i] = 0;
+        }
+
+        randomProb();
+    }
+
+    /**
+     * viterbi algorithm
+     */
+    public double viterbi(int[] testSeq) {
         setObSeq(testSeq);
-        double phi[][] = new double[len_obSeq][num_states];
+        double[][] phi = new double[len_obSeq][num_states];
         psi = new int[len_obSeq][num_states];
         q = new int[len_obSeq];
 
@@ -101,13 +133,16 @@ public class HiddenMarkov {
         }
     }
 
-    public double getProbability(int testSeq[]) {
+    public double getProbability(int[] testSeq) {
         setObSeq(testSeq);
         double temp = computeAlpha();
 
         return temp;
     }
 
+    /**
+     * forward
+     */
     protected double computeAlpha() {
         double probability = 0;
 
@@ -116,8 +151,6 @@ public class HiddenMarkov {
         }
 
         for (int i = 0; i < num_states; i++) {
-            // System.out.println("current  "+i+" crr  "+currentSeq[0]);
-
             alpha[0][i] = pi[i] * output[i][currentSeq[0]];
         }
         rescaleAlpha(0);
@@ -140,19 +173,17 @@ public class HiddenMarkov {
         }
 
         probability = 0;
-        // double totalScaleFactor = 1;
+
         for (int t = 0; t < len_obSeq; t++) {
-            // System.out.println("s: " + Math.log(scaleFactor[t]));
-
             probability += Math.log(scaleFactor[t]);
-
-            // totalScaleFactor *= scaleFactor[t];
         }
 
-        return -probability;
-        // return porbability / totalScaleFactor;
+        return probability;
     }
 
+    /**
+     * backward
+     */
     protected void computeBeta() {
         for (int i = 0; i < num_states; i++) {
             beta[len_obSeq - 1][i] = 1;
@@ -174,11 +205,11 @@ public class HiddenMarkov {
         obSeq = new int[k][];
     }
 
-    public void setTrainSeq(int k, int trainSeq[]) {
+    public void setTrainSeq(int k, int[] trainSeq) {
         obSeq[k] = trainSeq;
     }
 
-    public void setTrainSeq(int trainSeq[][]) {
+    public void setTrainSeq(int[][] trainSeq) {
         num_obSeq = trainSeq.length;
         obSeq = new int[num_obSeq][];
         for (int k = 0; k < num_obSeq; k++) {
@@ -193,13 +224,14 @@ public class HiddenMarkov {
         }
     }
 
+    /**
+     * Baum-Welch algorithm
+     */
     private void reestimate() {
-        // new probabilities that will be the optimized and replace the older
-        // version
-        double newTransition[][] = new double[num_states][num_states];
-        double newOutput[][] = new double[num_states][num_symbols];
-        double numerator[] = new double[num_obSeq];
-        double denominator[] = new double[num_obSeq];
+        double[][] newTransition = new double[num_states][num_states];
+        double[][] newOutput = new double[num_states][num_symbols];
+        double[] numerator = new double[num_obSeq];
+        double[] denominator = new double[num_obSeq];
 
         // calculate new transition probability matrix
         double sumP = 0;
@@ -253,8 +285,8 @@ public class HiddenMarkov {
 
                 double denom = 0;
                 for (int k = 0; k < num_obSeq; k++) {
-                    newOutput[i][j] += (1 / sumP) * numerator[k];
                     denom += (1 / sumP) * denominator[k];
+                    newOutput[i][j] += (1 / sumP) * numerator[k];
                 }
 
                 newOutput[i][j] /= denom;
@@ -267,7 +299,7 @@ public class HiddenMarkov {
         output = newOutput;
     }
 
-    public void setObSeq(int observationSeq[]) {
+    public void setObSeq(int[] observationSeq) {
         currentSeq = observationSeq;
         len_obSeq = observationSeq.length;
         // System.out.println("len_obSeq<<setObSeq()   "+len_obSeq);
@@ -275,35 +307,6 @@ public class HiddenMarkov {
         alpha = new double[len_obSeq][num_states];
         beta = new double[len_obSeq][num_states];
         scaleFactor = new double[len_obSeq];
-    }
-
-    public HiddenMarkov(String Animal) throws Exception {
-        DataBase db = new ObjectIODataBase();
-        db.setType("hmm");
-        HMMModel model = new HMMModel();
-        model = (HMMModel) db.readModel(Animal);// System.out.println(model.getClass());
-        num_obSeq = model.getNum_obSeq();
-        output = model.getOutput();// ArrayWriter.print2DTabbedDoubleArrayToConsole(output);
-        transition = model.getTransition();
-        pi = model.getPi();
-        num_states = output.length;
-        num_symbols = output[0].length;
-        // System.out.println("num states :"+num_states+"num symbols :"+num_symbols);
-    }
-
-    public HiddenMarkov(int num_states, int num_symbols) {
-        this.num_states = num_states;
-        this.num_symbols = num_symbols;
-        transition = new double[num_states][num_states];
-        output = new double[num_states][num_symbols];
-        pi = new double[num_states];
-
-        pi[0] = 1;
-        for (int i = 1; i < num_states; i++) {
-            pi[i] = 0;
-        }
-
-        randomProb();
     }
 
     private void randomProb() {
